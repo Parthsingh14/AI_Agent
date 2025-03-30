@@ -49,6 +49,7 @@ const Home = () => {
                     <i className="ri-link ml-2"></i>
                 </button>
 
+                {/*rendering the projects*/}
                 {
                     project.map((project) => (
                         <div key={project._id}
