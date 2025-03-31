@@ -3,25 +3,25 @@ import { UserContext } from '../context/user.context'
 import { useLocation } from 'react-router-dom'
 import axios from '../config/axios'
 import { initializeSocket, receiveMessage, sendMessage } from '../config/socket'
-// import Markdown from 'markdown-to-jsx'
+import Markdown from 'markdown-to-jsx'
 // import hljs from 'highlight.js';
 // import { getWebContainer } from '../config/webcontainer'
 
 
-// function SyntaxHighlightedCode(props) {
-//     const ref = useRef(null)
+function SyntaxHighlightedCode(props) {
+    const ref = useRef(null)
 
-//     React.useEffect(() => {
-//         if (ref.current && props.className?.includes('lang-') && window.hljs) {
-//             window.hljs.highlightElement(ref.current)
+    React.useEffect(() => {
+        if (ref.current && props.className?.includes('lang-') && window.hljs) {
+            window.hljs.highlightElement(ref.current)
 
-//             // hljs won't reprocess the element unless this attribute is removed
-//             ref.current.removeAttribute('data-highlighted')
-//         }
-//     }, [ props.className, props.children ])
+            // hljs won't reprocess the element unless this attribute is removed
+            ref.current.removeAttribute('data-highlighted')
+        }
+    }, [ props.className, props.children ])
 
-//     return <code {...props} ref={ref} />
-// }
+    return <code {...props} ref={ref} />
+}
 
 
 const Project = () => {
@@ -90,24 +90,38 @@ const Project = () => {
 
     }
 
-    // function WriteAiMessage(message) {
-
-    //     const messageObject = JSON.parse(message)
-
-    //     return (
-    //         <div
-    //             className='overflow-auto bg-slate-950 text-white rounded-sm p-2'
-    //         >
-    //             <Markdown
-    //                 children={messageObject.text}
-    //                 options={{
-    //                     overrides: {
-    //                         code: SyntaxHighlightedCode,
-    //                     },
-    //                 }}
-    //             />
-    //         </div>)
-    // }
+    function WriteAiMessage(message) {
+        try {
+            // Try to parse as JSON first
+            const messageObject = JSON.parse(message);
+            return (
+                <div className='overflow-auto bg-slate-950 text-white rounded-sm p-2'>
+                    <Markdown
+                        children={messageObject.text}
+                        options={{
+                            overrides: {
+                                code: SyntaxHighlightedCode,
+                            },
+                        }}
+                    />
+                </div>
+            );
+        } catch (e) {
+            // If parsing fails, treat it as plain text
+            return (
+                <div className='overflow-auto bg-slate-950 text-white rounded-sm p-2'>
+                    <Markdown
+                        children={message}
+                        options={{
+                            overrides: {
+                                code: SyntaxHighlightedCode,
+                            },
+                        }}
+                    />
+                </div>
+            );
+        }
+    }
 
     useEffect(() => {
 
@@ -122,27 +136,25 @@ const Project = () => {
 
 
         receiveMessage('project-message', data => {
-
-            console.log(data)
+            console.log(data);
             
             if (data.sender._id == 'ai') {
-
-
-                const message = JSON.parse(data.message)
-
-                console.log(message)
-
-                webContainer?.mount(message.fileTree)
-
+                console.log(data.message);
+                
+                // Don't parse here, let WriteAiMessage handle it
+                // const message = JSON.parse(data.message);
+                // console.log(message);
+        
+                webContainer?.mount(message.fileTree);
                 if (message.fileTree) {
-                    setFileTree(message.fileTree || {})
+                    setFileTree(message.fileTree || {});
                 }
-                setMessages(prevMessages => [ ...prevMessages, data ]) // Update messages state
+                
+                setMessages(prevMessages => [...prevMessages, data]);
             } else {
-                setMessages(prevMessages => [ ...prevMessages, data ]) // Update messages state
+                setMessages(prevMessages => [...prevMessages, data]);
             }
-        })
-
+        });
 
         axios.get(`/projects/get-project/${location.state.project._id}`).then(res => {
 
