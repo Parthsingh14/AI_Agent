@@ -4,8 +4,8 @@ import { useLocation } from 'react-router-dom'
 import axios from '../config/axios'
 import { initializeSocket, receiveMessage, sendMessage } from '../config/socket'
 import Markdown from 'markdown-to-jsx'
-// import hljs from 'highlight.js';
-// import { getWebContainer } from '../config/webcontainer'
+import hljs from 'highlight.js';
+import { getWebContainer } from '../config/webcontainer.js'
 
 
 function SyntaxHighlightedCode(props) {
@@ -106,8 +106,9 @@ const Project = () => {
                     />
                 </div>
             );
-        } catch (e) {
+        } catch (err) {
             // If parsing fails, treat it as plain text
+            console.log(err);
             return (
                 <div className='overflow-auto bg-slate-950 text-white rounded-sm p-2'>
                     <Markdown
@@ -127,12 +128,12 @@ const Project = () => {
 
         initializeSocket(project._id)
 
-        // if (!webContainer) {
-        //     getWebContainer().then(container => {
-        //         setWebContainer(container)
-        //         console.log("container started")
-        //     })
-        // }
+        if (!webContainer) {
+            getWebContainer().then(container => {
+                setWebContainer(container)
+                console.log("container started")
+            })
+        }
 
 
         receiveMessage('project-message', data => {
@@ -142,8 +143,8 @@ const Project = () => {
                 console.log(data.message);
                 
                 // Don't parse here, let WriteAiMessage handle it
-                // const message = JSON.parse(data.message);
-                // console.log(message);
+                const message = JSON.parse(JSON.stringify(data.message));
+                console.log(message);
         
                 webContainer?.mount(message.fileTree);
                 if (message.fileTree) {
@@ -183,13 +184,6 @@ const Project = () => {
         }).catch(err => {
             console.log(err)
         })
-    }
-
-
-    // Removed appendIncomingMessage and appendOutgoingMessage functions
-
-    function scrollToBottom() {
-        messageBox.current.scrollTop = messageBox.current.scrollHeight
     }
 
     return (
@@ -264,7 +258,7 @@ const Project = () => {
                 </div>
             </section>
 
-            {/* <section className="right  bg-red-50 flex-grow h-full flex">
+            <section className="right  bg-red-50 flex-grow h-full flex">
 
                 <div className="explorer h-full max-w-64 min-w-52 bg-slate-200">
                     <div className="file-tree w-full">
@@ -401,7 +395,7 @@ const Project = () => {
                 }
 
 
-            </section> */}
+            </section>
 
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
