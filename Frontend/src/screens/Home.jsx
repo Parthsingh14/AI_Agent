@@ -11,7 +11,6 @@ const Home = () => {
     const [ project, setProject ] = useState([])
 
     const navigate = useNavigate()
-    console.log(user);
 
     function createProject(e) {
         e.preventDefault()
@@ -49,7 +48,6 @@ const Home = () => {
                     <i className="ri-link ml-2"></i>
                 </button>
 
-                {/*rendering the projects*/}
                 {
                     project.map((project) => (
                         <div key={project._id}

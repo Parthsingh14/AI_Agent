@@ -143,7 +143,7 @@ const Project = () => {
                 console.log(data.message);
                 
                 // Don't parse here, let WriteAiMessage handle it
-                const message = JSON.parse(JSON.stringify(data.message));
+                const message = JSON.parse(data.message);
                 console.log(message);
         
                 webContainer?.mount(message.fileTree);
